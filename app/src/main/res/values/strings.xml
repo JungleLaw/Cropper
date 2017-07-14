@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Cropper</string>
+
+    <string name="key_internal_uri_extsdcard_photos">uri_extsdcard_photos</string>
+</resources>
