@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!-- COLOR FOR PHOTOS -->
+    <color name="color_for_photo_fri">#2E2D2B</color>
+    <color name="color_for_photo_sec">#454440</color>
+    <color name="color_for_photo_thi">#696761</color>
+    <color name="color_for_photo_fou">#A6A39A</color>
+    <color name="color_for_photo_fif">#C9C6BB</color>
+
 </resources>

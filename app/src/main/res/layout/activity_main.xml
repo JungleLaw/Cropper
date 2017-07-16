@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.zhy.autolayout.AutoRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.zhy.autolayout.AutoLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
+    android:orientation="vertical"
     tools:context="com.law.cropper.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80px"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Cropper"
+            android:textColor="@android:color/white"
+            android:textSize="46px" />
+    </RelativeLayout>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -56,24 +71,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="width" />
+                    android:text="Ratio" />
 
                 <EditText
-                    android:id="@+id/et_ratio_width"
+                    android:id="@+id/et_ratio"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="height" />
-
-                <EditText
-                    android:id="@+id/et_ratio_height"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:inputType="numberDecimal" />
             </LinearLayout>
 
             <Button
@@ -132,7 +137,19 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="10dip"
+                android:paddingTop="10dip"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/img_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:padding="10dip"
+                android:visibility="gone" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
-</com.zhy.autolayout.AutoRelativeLayout>
+</com.zhy.autolayout.AutoLinearLayout>

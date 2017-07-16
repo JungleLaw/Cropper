@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.law.cropper">
+    <!--声明使用相机-->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".App"
+        android:name="com.base.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -26,9 +33,12 @@
         <activity android:name=".PreviewActivity">
 
         </activity>
+        <activity android:name=".GalleryActivity">
+
+        </activity>
         <!-- 自定义GlideModule -->
         <meta-data
-            android:name="imageloader.impl.GlideModelConfig"
+            android:name="com.imageloader.impl.GlideModelConfig"
             android:value="GlideModule" />
         <meta-data
             android:name="design_width"

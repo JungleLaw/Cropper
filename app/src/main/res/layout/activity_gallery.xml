@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zhy.autolayout.AutoRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="80px"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Cropper"
+            android:textColor="@android:color/white"
+            android:textSize="46px" />
+
+        <TextView
+            android:id="@+id/btn_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:padding="10dip"
+            android:text="确定"
+            android:textColor="@android:color/white"
+            android:textSize="30px" />
+    </RelativeLayout>
+
+    <com.law.cropper.view.HackyViewPager
+        android:id="@+id/vp_imgs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/titlebar"
+        android:background="#000000" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80px"
+        android:layout_alignParentBottom="true"
+        android:background="#65000000">
+
+        <TextView
+            android:id="@+id/tv_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:drawableLeft="@drawable/bg_check_box_selector"
+            android:drawablePadding="10dip"
+            android:gravity="center"
+            android:padding="10dip"
+            android:text="选择"
+            android:textColor="@android:color/white"
+            android:textSize="30px" />
+
+
+    </RelativeLayout>
+</com.zhy.autolayout.AutoRelativeLayout>
