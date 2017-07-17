@@ -32,7 +32,7 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     private List<Media> mMedias;
     private int mode;
-    private ArrayList<Integer> selectedPositions = null;
+    private ArrayList<Long> selectedPositions = null;
     private int maxSize;
     private ItemClickCallback callback;
 
@@ -87,7 +87,7 @@ public class ImageAdapter extends BaseAdapter {
         switch (mode) {
             case ImagePickActivity.MODE_MULTI:
                 holder.vIvCheckBox.setVisibility(View.VISIBLE);
-                if (media.isSelected()) {
+                if (selectedPositions.contains(media.getId())) {
                     holder.vIvCheckBox.setSelected(true);
                 } else {
                     holder.vIvCheckBox.setSelected(false);
@@ -95,16 +95,16 @@ public class ImageAdapter extends BaseAdapter {
                 holder.vIvCheckBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (media.isSelected()) {
+                        if (selectedPositions.contains(media.getId())) {
                             media.setSelected(false);
-                            selectedPositions.remove((Integer) i);
+                            selectedPositions.remove(media.getId());
                         } else {
                             if (selectedPositions.size() == maxSize) {
                                 Toast.makeText(mContext, "至多可以选择" + maxSize + "张图片", Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             media.setSelected(true);
-                            selectedPositions.add(i);
+                            selectedPositions.add(media.getId());
                         }
                         if (callback != null) {
                             callback.itemSelect(selectedPositions.size());
@@ -158,11 +158,12 @@ public class ImageAdapter extends BaseAdapter {
         void itemSelect(int count);
     }
 
-    public ArrayList<Integer> getSelectedList() {
+    public ArrayList<Long> getSelectedList() {
         return selectedPositions;
     }
 
-    public void setSelectedList(ArrayList<Integer> selectedPositions) {
+    public void setSelectedList(ArrayList<Long> selectedPositions) {
         this.selectedPositions = selectedPositions;
+        notifyDataSetChanged();
     }
 }

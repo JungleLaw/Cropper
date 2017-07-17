@@ -2,6 +2,8 @@ package com.law.cropper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -17,8 +19,17 @@ import com.law.cropper.photoloader.PhotoLoader;
 import com.law.cropper.photoloader.entity.Album;
 import com.law.cropper.photoloader.entity.Media;
 import com.law.cropper.photoloader.utils.Logger;
+import com.zxy.tiny.Tiny;
+import com.zxy.tiny.callback.FileBatchCallback;
+import com.zxy.tiny.callback.FileCallback;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -49,7 +60,7 @@ public class ImagePickActivity extends AppCompatActivity {
 
     private ArrayList<Album> mAlbums;
     private ArrayList<Media> mMedias;
-    private ArrayList<Media> mSelectedList = new ArrayList<>();
+    private HashMap<Integer, String> mSelectedMap = new HashMap<>();
 
     private int mode;
     private int maxSize = -1;
@@ -84,12 +95,21 @@ public class ImagePickActivity extends AppCompatActivity {
         }
         switch (requestCode) {
             case GALLERY_REQUEST_CODE:
-                ArrayList<Integer> selectedList = data.getIntegerArrayListExtra(GalleryActivity.SELECTED_RESULT_KEY);
-                mImageAdapter.setSelectedList(selectedList);
-                for (Integer position : selectedList) {
-                    mMedias.get(position).setSelected(true);
+                ArrayList<Long> selectedList = (ArrayList<Long>) data.getSerializableExtra(GalleryActivity.SELECTED_RESULT_KEY);
+                if (selectedList == null || selectedList.isEmpty()) {
+//                    for (Media media : mImageAdapter.getSelectedList()) {
+//                        mMedias.get(mMedias.indexOf(media)).setSelected(false);
+//                    }
+                    vBtnConfirm.setText("确定");
+                    return;
                 }
-                mImageAdapter.refresh(mMedias);
+
+//                for (Integer position : selectedList) {
+//                    mMedias.get(position).setSelected(true);
+//                }
+                vBtnConfirm.setText("确定(" + selectedList.size() + "/" + maxSize + ")");
+                mImageAdapter.setSelectedList(selectedList);
+//                mImageAdapter.refresh(mMedias);
                 break;
         }
     }
@@ -103,10 +123,9 @@ public class ImagePickActivity extends AppCompatActivity {
                     @Override
                     public void itemClick(int position) {
                         Toast.makeText(ImagePickActivity.this, position + "", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent();
-                        intent.putExtra(Constants.PICK_SINGLE_RESULT, mMedias.get(position).getPath());
-                        setResult(RESULT_OK, intent);
-                        finish();
+                        gcAndFinalize();
+                        compress(mMedias.get(position).getPath());
+
                     }
                 });
                 vBtnConfirm.setVisibility(View.GONE);
@@ -170,13 +189,119 @@ public class ImagePickActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_confirm)
     public void confirm(View view) {
-        Intent intent = new Intent();
-        ArrayList<String> medias = new ArrayList<>();
-        for (Integer position : mImageAdapter.getSelectedList()) {
-            medias.add(mMedias.get(position).getPath());
+        if (mImageAdapter.getSelectedList().isEmpty()) {
+            return;
         }
-        intent.putExtra(Constants.PICK_MULTI_RESULT, medias);
+        ArrayList<String> mediasPath = new ArrayList<>();
+//        for (Long id : mImageAdapter.getSelectedList()) {
+//            mediasPath.add(media.getPath());
+//        }
+        for (Media media : mMedias) {
+            if (mImageAdapter.getSelectedList().contains(media.getId())) {
+                mediasPath.add(media.getPath());
+            }
+            if (mediasPath.size() == mImageAdapter.getSelectedList().size()) {
+                break;
+            }
+        }
+        gcAndFinalize();
+        compress(mediasPath);
+    }
+
+    private void compress(ArrayList<String> filesPath) {
+        try {
+            File[] files = new File[filesPath.size()];
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            for (int i = 0; i < filesPath.size(); i++) {
+                File outFile = new File(getExternalFilesDir(null), "Mge_" + System.currentTimeMillis() + "_" + i + ".jpg");
+                FileOutputStream fos = new FileOutputStream(outFile);
+                FileInputStream fis = new FileInputStream(new File(filesPath.get(i)));
+                byte[] buffer = new byte[4096];
+                int len = -1;
+                while ((len = fis.read(buffer)) != -1) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+                fis.close();
+                files[i] = outFile;
+            }
+            Tiny.FileCompressOptions compressOptions = new Tiny.FileCompressOptions();
+            compressOptions.config = Bitmap.Config.RGB_565;
+            Tiny.getInstance().source(files).batchAsFile().withOptions(compressOptions).batchCompress(new FileBatchCallback() {
+                @Override
+                public void callback(boolean isSuccess, String[] outfile) {
+                    if (!isSuccess) {
+                        Toast.makeText(ImagePickActivity.this, "压缩失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ArrayList<String> paths = new ArrayList<>();
+                    paths.addAll(Arrays.asList(outfile));
+                    retrieve(paths);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void compress(String filePath) {
+        try {
+            File outfile = new File(getExternalFilesDir(null), "Mge_" + System.currentTimeMillis() + ".jpg");
+            FileOutputStream fos = new FileOutputStream(outfile);
+            FileInputStream fis = new FileInputStream(new File(filePath));
+            byte[] buffer = new byte[4096];
+            int len = -1;
+            while ((len = fis.read(buffer)) != -1) {
+                fos.write(buffer, 0, len);
+            }
+            fos.close();
+            fis.close();
+//            if (!outfile.exists()) {
+//                outfile.mkdir();
+//                outfile.createNewFile();
+//            }
+//            final BitmapFactory.Options options = new BitmapFactory.Options();
+//            options.inPreferredConfig = Bitmap.Config.RGB_565;
+//            Bitmap originBitmap = BitmapFactory.decodeFile(filePath, options);
+
+//        setupOriginInfo(originBitmap, outfile.length());
+
+            Tiny.FileCompressOptions compressOptions = new Tiny.FileCompressOptions();
+            compressOptions.config = Bitmap.Config.RGB_565;
+            Tiny.getInstance().source(outfile).asFile().withOptions(compressOptions).compress(new FileCallback() {
+                @Override
+                public void callback(boolean isSuccess, String outFilePath) {
+                    if (!isSuccess) {
+                        Toast.makeText(ImagePickActivity.this, "压缩失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    retrieve(outFilePath);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void retrieve(String path) {
+        Intent intent = new Intent();
+        intent.putExtra(Constants.PICK_SINGLE_RESULT, path);
         setResult(RESULT_OK, intent);
         finish();
+    }
+
+    private void retrieve(ArrayList<String> paths) {
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra(Constants.PICK_MULTI_RESULT, paths);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private void gcAndFinalize() {
+        Runtime runtime = Runtime.getRuntime();
+        System.gc();
+        runtime.runFinalization();
+        System.gc();
     }
 }

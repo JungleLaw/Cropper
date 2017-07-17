@@ -32,6 +32,13 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/btn_camera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dip"
+                android:text="camera" />
+
+            <Button
                 android:id="@+id/btn_pick_single"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,14 +78,24 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ratio" />
+                    android:text="width" />
 
                 <EditText
-                    android:id="@+id/et_ratio"
+                    android:id="@+id/et_ratio_width"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:inputType="numberDecimal" />
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="height" />
+
+                <EditText
+                    android:id="@+id/et_ratio_height"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <Button

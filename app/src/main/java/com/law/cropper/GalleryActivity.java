@@ -45,15 +45,15 @@ public class GalleryActivity extends AppCompatActivity {
     private int index;
     private int maxSize;
     private List<Media> mMedias;
-    private ArrayList<Integer> selectedList;
+    private ArrayList<Long> selectedList;
     private DisplayPagerAdapter mDisplayPagerAdapter;
 
-    public static void navigateToGalleryActivity(Activity activity, int index, int maxSize, ArrayList<Media> medias, ArrayList<Integer> selectedList, int requestCode) {
+    public static void navigateToGalleryActivity(Activity activity, int index, int maxSize, ArrayList<Media> medias, ArrayList<Long> selectedList, int requestCode) {
         Intent intent = new Intent(activity, GalleryActivity.class);
         intent.putExtra(INDEX_KEY, index);
         intent.putExtra(SIZE_KEY, maxSize);
         intent.putParcelableArrayListExtra(MEDIAS_KEY, medias);
-        intent.putIntegerArrayListExtra(SELECTED_KEY, selectedList);
+        intent.putExtra(SELECTED_KEY, selectedList);
         activity.startActivityForResult(intent, requestCode);
     }
 
@@ -71,7 +71,7 @@ public class GalleryActivity extends AppCompatActivity {
         mMedias = new ArrayList<>();
         ArrayList<Media> medias = getIntent().getParcelableArrayListExtra(MEDIAS_KEY);
         mMedias.addAll(medias);
-        selectedList = getIntent().getIntegerArrayListExtra(SELECTED_KEY);
+        selectedList = (ArrayList<Long>) getIntent().getSerializableExtra(SELECTED_KEY);
 
 
         vTitle.setText(index + "/" + mMedias.size());
@@ -84,7 +84,7 @@ public class GalleryActivity extends AppCompatActivity {
         vViewPager.setPageMargin(10);
         vViewPager.setOffscreenPageLimit(2);
         vViewPager.setAdapter(mDisplayPagerAdapter);
-        if (selectedList.contains((Integer) index)) {
+        if (selectedList.contains(mMedias.get(index).getId())) {
             vTvSelect.setSelected(true);
         } else {
             vTvSelect.setSelected(false);
@@ -95,7 +95,7 @@ public class GalleryActivity extends AppCompatActivity {
         vViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                if (selectedList.contains((Integer) position)) {
+                if (selectedList.contains(mMedias.get(position).getId())) {
                     vTvSelect.setSelected(true);
                 } else {
                     vTvSelect.setSelected(false);
@@ -111,12 +111,12 @@ public class GalleryActivity extends AppCompatActivity {
             return;
         }
         int currentPosition = vViewPager.getCurrentItem();
-        if (selectedList.contains((Integer) currentPosition)) {
+        if (selectedList.contains(mMedias.get(currentPosition).getId())) {
             vTvSelect.setSelected(false);
-            selectedList.remove((Integer) currentPosition);
+            selectedList.remove(mMedias.get(currentPosition).getId());
         } else {
             vTvSelect.setSelected(true);
-            selectedList.add((Integer) currentPosition);
+            selectedList.add(mMedias.get(currentPosition).getId());
         }
 
         if (selectedList.size() == 0) {
@@ -129,7 +129,7 @@ public class GalleryActivity extends AppCompatActivity {
     @OnClick(R.id.btn_confirm)
     public void confirm(View view) {
         Intent intent = new Intent();
-        intent.putIntegerArrayListExtra(SELECTED_RESULT_KEY, selectedList);
+        intent.putExtra(SELECTED_RESULT_KEY, selectedList);
         setResult(RESULT_OK, intent);
         finish();
     }
