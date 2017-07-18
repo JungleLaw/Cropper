@@ -5,14 +5,15 @@ import android.content.res.TypedArray;
 import android.support.annotation.FloatRange;
 import android.util.AttributeSet;
 
-import com.steelkiwi.cropiwa.R;
+
+import com.law.cropper.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author yarolegovich https://github.com/yarolegovich
- * 04.02.2017.
+ *         04.02.2017.
  */
 public class CropIwaImageViewConfig {
 

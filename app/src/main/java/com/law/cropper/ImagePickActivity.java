@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ import butterknife.OnClick;
 
 public class ImagePickActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST_CODE = 0x1521;
+    private static final int PREVIEW_REQUEST_CODE = 0x1522;
 
     public static final int DEFAULT_MAX_SIZE = 9;
 
@@ -57,6 +59,10 @@ public class ImagePickActivity extends AppCompatActivity {
     GridView vGvImage;
     @BindView(R.id.btn_confirm)
     TextView vBtnConfirm;
+    @BindView(R.id.layout_pick_multi_bottom)
+    RelativeLayout vLayoutBottom;
+    @BindView(R.id.btn_preview)
+    TextView vBtnPreview;
 
     private ArrayList<Album> mAlbums;
     private ArrayList<Media> mMedias;
@@ -65,6 +71,8 @@ public class ImagePickActivity extends AppCompatActivity {
     private int mode;
     private int maxSize = -1;
     private ImageAdapter mImageAdapter;
+
+    private int currentAlbumIndex = -1;
 
     public static void navigateToImagePickActivity(Activity activity, int mode, int requestCode) {
         Intent intent = new Intent(activity, ImagePickActivity.class);
@@ -93,23 +101,40 @@ public class ImagePickActivity extends AppCompatActivity {
         if (resultCode != RESULT_OK) {
             return;
         }
+        ArrayList<Long> selectedList;
         switch (requestCode) {
             case GALLERY_REQUEST_CODE:
-                ArrayList<Long> selectedList = (ArrayList<Long>) data.getSerializableExtra(GalleryActivity.SELECTED_RESULT_KEY);
+                selectedList = (ArrayList<Long>) data.getSerializableExtra(GalleryActivity.SELECTED_RESULT_KEY);
+                mImageAdapter.setSelectedList(selectedList);
                 if (selectedList == null || selectedList.isEmpty()) {
 //                    for (Media media : mImageAdapter.getSelectedList()) {
 //                        mMedias.get(mMedias.indexOf(media)).setSelected(false);
 //                    }
                     vBtnConfirm.setText("确定");
+                    vBtnConfirm.setEnabled(false);
+                    vBtnPreview.setText("预览");
+                    vBtnPreview.setEnabled(false);
                     return;
                 }
-
-//                for (Integer position : selectedList) {
-//                    mMedias.get(position).setSelected(true);
-//                }
                 vBtnConfirm.setText("确定(" + selectedList.size() + "/" + maxSize + ")");
+                vBtnConfirm.setEnabled(true);
+                vBtnPreview.setText("预览(" + selectedList.size() + ")");
+                vBtnPreview.setEnabled(true);
+                break;
+            case PREVIEW_REQUEST_CODE:
+                selectedList = (ArrayList<Long>) data.getSerializableExtra(GalleryActivity.SELECTED_RESULT_KEY);
                 mImageAdapter.setSelectedList(selectedList);
-//                mImageAdapter.refresh(mMedias);
+                if (selectedList == null || selectedList.isEmpty()) {
+                    vBtnConfirm.setText("确定");
+                    vBtnConfirm.setEnabled(false);
+                    vBtnPreview.setText("预览");
+                    vBtnPreview.setEnabled(false);
+                    return;
+                }
+                vBtnConfirm.setText("确定(" + selectedList.size() + "/" + maxSize + ")");
+                vBtnConfirm.setEnabled(true);
+                vBtnPreview.setText("预览(" + selectedList.size() + ")");
+                vBtnPreview.setEnabled(true);
                 break;
         }
     }
@@ -122,13 +147,12 @@ public class ImagePickActivity extends AppCompatActivity {
                 mImageAdapter.setCallback(new SimpleItemClickCallback() {
                     @Override
                     public void itemClick(int position) {
-                        Toast.makeText(ImagePickActivity.this, position + "", Toast.LENGTH_SHORT).show();
                         gcAndFinalize();
                         compress(mMedias.get(position).getPath());
-
                     }
                 });
                 vBtnConfirm.setVisibility(View.GONE);
+                vLayoutBottom.setVisibility(View.GONE);
                 break;
             case MODE_MULTI:
                 maxSize = getIntent().getIntExtra(SIZE_KEY, DEFAULT_MAX_SIZE);
@@ -137,19 +161,25 @@ public class ImagePickActivity extends AppCompatActivity {
                 mImageAdapter.setCallback(new SimpleItemClickCallback() {
                     @Override
                     public void itemClick(int position) {
-                        Toast.makeText(ImagePickActivity.this, "" + position, Toast.LENGTH_SHORT).show();
-                        GalleryActivity.navigateToGalleryActivity(ImagePickActivity.this, position, maxSize, mMedias, mImageAdapter.getSelectedList(), GALLERY_REQUEST_CODE);
+                        GalleryActivity.navigateToGalleryActivity(ImagePickActivity.this, mAlbums.get(currentAlbumIndex).getName(), position, maxSize, mMedias, mImageAdapter.getSelectedList(), GALLERY_REQUEST_CODE);
                     }
 
                     @Override
                     public void itemSelect(int count) {
                         if (count == 0) {
                             vBtnConfirm.setText("确定");
+                            vBtnConfirm.setEnabled(false);
+                            vBtnPreview.setText("预览");
+                            vBtnPreview.setEnabled(false);
                         } else {
                             vBtnConfirm.setText("确定(" + count + "/" + maxSize + ")");
+                            vBtnConfirm.setEnabled(true);
+                            vBtnPreview.setText("预览(" + count + ")");
+                            vBtnPreview.setEnabled(true);
                         }
                     }
                 });
+                vLayoutBottom.setVisibility(View.VISIBLE);
                 break;
         }
         vGvImage.setAdapter(mImageAdapter);
@@ -178,6 +208,7 @@ public class ImagePickActivity extends AppCompatActivity {
                 mMedias = new ArrayList<>();
                 mMedias.addAll(mAlbums.get(index).getMedias());
                 mImageAdapter.refresh(mMedias);
+                currentAlbumIndex = index;
             }
 
             @Override
@@ -185,6 +216,11 @@ public class ImagePickActivity extends AppCompatActivity {
                 Toast.makeText(ImagePickActivity.this, "获取多媒体文件", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @OnClick(R.id.btn_back)
+    public void back(View view) {
+        finish();
     }
 
     @OnClick(R.id.btn_confirm)
@@ -196,16 +232,37 @@ public class ImagePickActivity extends AppCompatActivity {
 //        for (Long id : mImageAdapter.getSelectedList()) {
 //            mediasPath.add(media.getPath());
 //        }
-        for (Media media : mMedias) {
-            if (mImageAdapter.getSelectedList().contains(media.getId())) {
-                mediasPath.add(media.getPath());
-            }
-            if (mediasPath.size() == mImageAdapter.getSelectedList().size()) {
-                break;
+        for (Long id : mImageAdapter.getSelectedList()) {
+            for (Media media : mMedias) {
+//                if (mImageAdapter.getSelectedList().contains(media.getId())) {
+                if (id == media.getId()) {
+                    mediasPath.add(media.getPath());
+                }
+                if (mediasPath.size() == mImageAdapter.getSelectedList().size()) {
+                    break;
+                }
             }
         }
         gcAndFinalize();
         compress(mediasPath);
+    }
+
+    @OnClick(R.id.btn_preview)
+    public void preview(View view) {
+//        GalleryActivity.navigateToGalleryActivity(ImagePickActivity.this, position, maxSize, mMedias, mImageAdapter.getSelectedList(), GALLERY_REQUEST_CODE);
+        ArrayList<Media> selectedMedias = new ArrayList<>();
+        for (Long selectedMediaId : mImageAdapter.getSelectedList()) {
+            for (Media media : mMedias) {
+//                if (mImageAdapter.getSelectedList().contains(media.getId())) {
+                if (selectedMediaId == media.getId()) {
+                    selectedMedias.add(media);
+                }
+            }
+            if (selectedMedias.size() == mImageAdapter.getSelectedList().size()) {
+                break;
+            }
+        }
+        PreviewActivity.navigateToPreviewActivity(this, maxSize, selectedMedias, mImageAdapter.getSelectedList(), PREVIEW_REQUEST_CODE);
     }
 
     private void compress(ArrayList<String> filesPath) {

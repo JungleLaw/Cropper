@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_IMG_SINGLE_REQUEST_CODE = 0x1001;
     private static final int PICK_IMG_MULTI_REQUEST_CODE = 0x1002;
     private static final int TAKE_CAMERA_REQUEST_CODE = 0x1003;
+    private static final int TAKE_CROP_REQUEST_CODE = 0x1003;
 
     private static final int PICK_MAX_SIZE = 9;
 
@@ -123,10 +124,25 @@ public class MainActivity extends AppCompatActivity {
         }
         switch (view.getId()) {
             case R.id.btn_crop_default:
+                CropActivity.navigetToCropActivity(this, cropSrc, TAKE_CROP_REQUEST_CODE);
                 break;
             case R.id.btn_crop_ratio:
+                if (TextUtils.isEmpty(vEtRatioWidth.getText()) || TextUtils.isEmpty(vEtRatioHeight.getText())) {
+                    Toast.makeText(this, "设置比例参数", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int widthRatio = Integer.parseInt(vEtRatioWidth.getText().toString().trim());
+                int heightRatio = Integer.parseInt(vEtRatioHeight.getText().toString().trim());
+                CropActivity.navigetToCropActivityWithRatio(this, cropSrc, widthRatio, heightRatio, TAKE_CROP_REQUEST_CODE);
                 break;
             case R.id.btn_crop_size:
+                if (TextUtils.isEmpty(vEtWidth.getText()) || TextUtils.isEmpty(vEtHeight.getText())) {
+                    Toast.makeText(this, "设置输出参数", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int outWidth = Integer.parseInt(vEtWidth.getText().toString().trim());
+                int outHeight = Integer.parseInt(vEtHeight.getText().toString().trim());
+                CropActivity.navigetToCropActivityWithSize(this, cropSrc, outWidth, outHeight, TAKE_CROP_REQUEST_CODE);
                 break;
         }
     }

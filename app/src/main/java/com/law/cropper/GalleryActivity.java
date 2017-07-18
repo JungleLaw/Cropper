@@ -28,28 +28,33 @@ import butterknife.OnClick;
 public class GalleryActivity extends AppCompatActivity {
     public static final String SELECTED_RESULT_KEY = "result";
 
-    private static final String MEDIAS_KEY = "medias";
+    private static final String ALBUM_KEY = "album";
     private static final String INDEX_KEY = "index";
+    private static final String MEDIAS_KEY = "medias";
     private static final String SELECTED_KEY = "selected";
     private static final String SIZE_KEY = "size";
 
     @BindView(R.id.vp_imgs)
     HackyViewPager vViewPager;
-    @BindView(R.id.title)
+    @BindView(R.id.tv_title)
     TextView vTitle;
+    @BindView(R.id.tv_index)
+    TextView vIndex;
     @BindView(R.id.tv_select)
     TextView vTvSelect;
     @BindView(R.id.btn_confirm)
     TextView vBtnConfirm;
 
+    private String albumName;
     private int index;
     private int maxSize;
     private List<Media> mMedias;
     private ArrayList<Long> selectedList;
     private DisplayPagerAdapter mDisplayPagerAdapter;
 
-    public static void navigateToGalleryActivity(Activity activity, int index, int maxSize, ArrayList<Media> medias, ArrayList<Long> selectedList, int requestCode) {
+    public static void navigateToGalleryActivity(Activity activity, String albumName, int index, int maxSize, ArrayList<Media> medias, ArrayList<Long> selectedList, int requestCode) {
         Intent intent = new Intent(activity, GalleryActivity.class);
+        intent.putExtra(ALBUM_KEY, albumName);
         intent.putExtra(INDEX_KEY, index);
         intent.putExtra(SIZE_KEY, maxSize);
         intent.putParcelableArrayListExtra(MEDIAS_KEY, medias);
@@ -66,6 +71,8 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     private void init() {
+
+        albumName = getIntent().getStringExtra(ALBUM_KEY);
         index = getIntent().getIntExtra(INDEX_KEY, 0);
         maxSize = getIntent().getIntExtra(SIZE_KEY, 0);
         mMedias = new ArrayList<>();
@@ -73,8 +80,8 @@ public class GalleryActivity extends AppCompatActivity {
         mMedias.addAll(medias);
         selectedList = (ArrayList<Long>) getIntent().getSerializableExtra(SELECTED_KEY);
 
-
-        vTitle.setText(index + "/" + mMedias.size());
+        vTitle.setText(albumName);
+        vIndex.setText((index + 1) + "/" + mMedias.size());
         if (selectedList.size() == 0) {
             vBtnConfirm.setText("确定");
         } else {
@@ -95,6 +102,8 @@ public class GalleryActivity extends AppCompatActivity {
         vViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
+                vIndex.setText((position + 1) + "/" + mMedias.size());
+
                 if (selectedList.contains(mMedias.get(position).getId())) {
                     vTvSelect.setSelected(true);
                 } else {
@@ -124,6 +133,11 @@ public class GalleryActivity extends AppCompatActivity {
         } else {
             vBtnConfirm.setText("确定(" + selectedList.size() + "/" + maxSize + ")");
         }
+    }
+
+    @OnClick(R.id.btn_back)
+    public void back(View view) {
+        finish();
     }
 
     @OnClick(R.id.btn_confirm)

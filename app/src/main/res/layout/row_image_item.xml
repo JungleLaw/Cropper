@@ -23,4 +23,11 @@
         android:padding="4dip"
         android:src="@drawable/bg_check_box_selector"
         android:visibility="gone" />
+
+    <View
+        android:id="@+id/v_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#65000000"
+        android:visibility="gone" />
 </RelativeLayout>

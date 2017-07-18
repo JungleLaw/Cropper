@@ -17,9 +17,21 @@
             android:text="Cropper"
             android:textColor="@android:color/white"
             android:textSize="46px" />
+
+        <TextView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:padding="10dip"
+            android:text="保存"
+            android:textColor="@android:color/white"
+            android:textSize="30px" />
+
     </RelativeLayout>
 
-    <com.steelkiwi.cropiwa.CropIwaView
+    <com.law.cropper.crop.CropIwaView
         android:id="@+id/crop_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -89,8 +89,10 @@ public class ImageAdapter extends BaseAdapter {
                 holder.vIvCheckBox.setVisibility(View.VISIBLE);
                 if (selectedPositions.contains(media.getId())) {
                     holder.vIvCheckBox.setSelected(true);
+                    holder.vMask.setVisibility(View.VISIBLE);
                 } else {
                     holder.vIvCheckBox.setSelected(false);
+                    holder.vMask.setVisibility(View.GONE);
                 }
                 holder.vIvCheckBox.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -146,6 +148,8 @@ public class ImageAdapter extends BaseAdapter {
         ImageView vIvPhoto;
         @BindView(R.id.iv_item_select)
         ImageView vIvCheckBox;
+        @BindView(R.id.v_mask)
+        View vMask;
 
         public ViewHolder(View itemView) {
             ButterKnife.bind(this, itemView);

@@ -84,7 +84,8 @@
                     android:id="@+id/et_ratio_width"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:inputType="number" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -95,7 +96,8 @@
                     android:id="@+id/et_ratio_height"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:inputType="number" />
             </LinearLayout>
 
             <Button
@@ -130,7 +132,8 @@
                     android:id="@+id/et_width"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:inputType="number" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -141,7 +144,8 @@
                     android:id="@+id/et_height"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:inputType="number" />
             </LinearLayout>
 
             <Button
