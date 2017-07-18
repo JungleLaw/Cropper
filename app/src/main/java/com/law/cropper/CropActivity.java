@@ -99,7 +99,12 @@ public class CropActivity extends AppCompatActivity {
 
         path = getIntent().getStringExtra(PATH_KEY);
         Uri uri = Uri.fromFile(new File(path));
+
+
         vCropIwaView.configureOverlay().setOverlayColor(ContextCompat.getColor(this, R.color.cropiwa_default_overlay_color));
+        vCropIwaView.configureImage().setImageScaleEnabled(true).apply();
+        vCropIwaView.configureImage().setScale(0.02f).apply();
+        vCropIwaView.setImageUri(uri);
 
         switch (mode) {
             case MODE_RATIO:
@@ -113,9 +118,6 @@ public class CropActivity extends AppCompatActivity {
                 vCropIwaView.configureOverlay().setDynamicCrop(true).setAspectRatio(AspectRatio.IMG_SRC).apply();
                 break;
         }
-
-        vCropIwaView.setImageUri(uri);
-
     }
 
     @OnClick(R.id.save)
