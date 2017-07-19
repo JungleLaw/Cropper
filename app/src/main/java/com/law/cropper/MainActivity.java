@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_IMG_SINGLE_REQUEST_CODE = 0x1001;
     private static final int PICK_IMG_MULTI_REQUEST_CODE = 0x1002;
     private static final int TAKE_CAMERA_REQUEST_CODE = 0x1003;
-    private static final int TAKE_CROP_REQUEST_CODE = 0x1003;
+    private static final int TAKE_CROP_REQUEST_CODE = 0x1004;
 
     private static final int PICK_MAX_SIZE = 9;
 
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 int outWidth = Integer.parseInt(vEtWidth.getText().toString().trim());
                 int outHeight = Integer.parseInt(vEtHeight.getText().toString().trim());
-                CropActivity.navigetToCropActivityWithSize(this, cropSrc, outWidth, outHeight, TAKE_CROP_REQUEST_CODE);
+                CropActivity.navigetToCropActivityWithOutSize(this, cropSrc, outWidth, outHeight, TAKE_CROP_REQUEST_CODE);
                 break;
         }
     }
@@ -173,6 +173,12 @@ public class MainActivity extends AppCompatActivity {
                 Logger.i("cameraFilePath = " + cropSrc);
 //                File file = new File(cameraFilePath);
                 compress(cropSrc);
+                break;
+
+            case TAKE_CROP_REQUEST_CODE:
+                cropSrc = data.getStringExtra(Constants.CROP_IMG_RESULT);
+                ImageDisplayUtils.display(MainActivity.this, cropSrc, vImgDisplay);
+                Logger.i("TAKE_CROP_REQUEST_CODE : " + cropSrc);
                 break;
         }
     }

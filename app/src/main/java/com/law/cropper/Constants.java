@@ -7,4 +7,5 @@ package com.law.cropper;
 public class Constants {
     public static final String PICK_SINGLE_RESULT = "single_result";
     public static final String PICK_MULTI_RESULT = "multi_result";
+    public static final String CROP_IMG_RESULT = "crop_result";
 }

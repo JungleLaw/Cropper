@@ -2,16 +2,21 @@ package com.law.cropper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.law.cropper.crop.CropImageView;
 import com.law.cropper.photoloader.utils.Logger;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,7 +26,7 @@ import butterknife.OnClick;
  * Created by Jungle on 2017/7/14.
  */
 
-public class CropActivity extends AppCompatActivity implements CropImageView.OnSetImageUriCompleteListener, CropImageView.OnCropImageCompleteListener {
+public class CropActivity extends AppCompatActivity implements CropImageView.OnCropImageCompleteListener {
     private static final String PATH_KEY = "path";
     private static final String RATIO_WIDTH_KEY = "width_ratio";
     private static final String RATIO_HEIGHT_KEY = "height_ratio";
@@ -62,7 +67,7 @@ public class CropActivity extends AppCompatActivity implements CropImageView.OnS
         activity.startActivityForResult(intent, requestCode);
     }
 
-    public static void navigetToCropActivityWithSize(Activity activity, String path, int width, int height, int requestCode) {
+    public static void navigetToCropActivityWithOutSize(Activity activity, String path, int width, int height, int requestCode) {
         Intent intent = new Intent(activity, CropActivity.class);
         intent.putExtra(PATH_KEY, path);
         intent.putExtra(OUT_WIDTH_KEY, width);
@@ -81,14 +86,12 @@ public class CropActivity extends AppCompatActivity implements CropImageView.OnS
     @Override
     protected void onStart() {
         super.onStart();
-        vCropView.setOnSetImageUriCompleteListener(this);
         vCropView.setOnCropImageCompleteListener(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        vCropView.setOnSetImageUriCompleteListener(null);
         vCropView.setOnCropImageCompleteListener(null);
     }
 
@@ -135,7 +138,17 @@ public class CropActivity extends AppCompatActivity implements CropImageView.OnS
 
     @OnClick(R.id.save)
     public void save(View view) {
-
+        switch (mode) {
+            case MODE_RATIO:
+                vCropView.getCroppedImageAsync();
+                break;
+            case MODE_SIZE:
+                vCropView.getCroppedImageAsync(outWidth, outHeight);
+                break;
+            case MODE_DYNAMIC:
+                vCropView.getCroppedImageAsync();
+                break;
+        }
     }
 
     //辗转相除法：返回公约数
@@ -169,12 +182,46 @@ public class CropActivity extends AppCompatActivity implements CropImageView.OnS
     }
 
     @Override
-    public void onSetImageUriComplete(CropImageView view, Uri uri, Exception error) {
-
+    public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
+        if (result.getError() == null) {
+            Intent intent = new Intent();
+            Uri uri = result.getUri();
+            if (uri != null) {
+                intent.putExtra(Constants.CROP_IMG_RESULT, uri.getPath());
+            } else {
+                Bitmap bitmap = result.getBitmap();
+                File cropFile = new File(getExternalFilesDir(null), "Mge_" + System.currentTimeMillis() + "_crop.jpg");
+                try {
+                    saveFile(bitmap, cropFile.getAbsolutePath());
+                    intent.putExtra(Constants.CROP_IMG_RESULT, cropFile.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "裁剪失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+            setResult(RESULT_OK, intent);
+            finish();
+        } else {
+            Logger.e(result.getError());
+            Toast.makeText(this, "Image crop failed: " + result.getError().getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
-    @Override
-    public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
-
+    /**
+     * 保存文件
+     *
+     * @param bm
+     * @throws IOException
+     */
+    public void saveFile(Bitmap bm, String path) throws IOException {
+//        File dirFile = new File(path);
+//        if(!dirFile.exists()){
+//            dirFile.mkdir();
+//        }
+        File myCaptureFile = new File(path);
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
+        bm.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+        bos.flush();
+        bos.close();
     }
 }
