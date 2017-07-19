@@ -51,7 +51,6 @@ public class CropActivity extends AppCompatActivity implements CropImageView.OnC
     /**
      * the options that were set for the crop image
      */
-    private CropImageViewOptions mCropImageViewOptions = new CropImageViewOptions();
 
     public static void navigetToCropActivity(Activity activity, String path, int requestCode) {
         Intent intent = new Intent(activity, CropActivity.class);
