@@ -31,9 +31,8 @@
 
     </RelativeLayout>
 
-    <com.law.cropper.crop.CropIwaView
+    <com.law.cropper.crop.CropImageView
         android:id="@+id/crop_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:ci_dynamic_aspect_ratio="false" />
+        android:layout_height="match_parent" />
 </com.zhy.autolayout.AutoLinearLayout>

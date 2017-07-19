@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.law.cropper.adapter.DisplayPagerAdapter;
 import com.law.cropper.adapter.ImagePreviewAdapter;
 import com.law.cropper.photoloader.entity.Media;
+import com.law.cropper.photoloader.utils.Logger;
 import com.law.cropper.view.HackyViewPager;
 
 import java.io.ByteArrayInputStream;
@@ -52,6 +53,7 @@ public class PreviewActivity extends AppCompatActivity {
 
     private List<Media> mMedias;
     private ArrayList<Long> selectedList;
+    private ArrayList<Long> removedList = new ArrayList<>();
     private DisplayPagerAdapter mDisplayPagerAdapter;
     private int maxSize;
     private ImagePreviewAdapter mPreviewAdapter;
@@ -79,6 +81,10 @@ public class PreviewActivity extends AppCompatActivity {
         mMedias.addAll(medias);
         selectedList = (ArrayList<Long>) getIntent().getSerializableExtra(SELECTED_KEY);
 
+        if (removedList != null) {
+            removedList.clear();
+        }
+
         vIndex.setText(1 + "/" + mMedias.size());
         if (selectedList.size() == 0) {
             vBtnConfirm.setText("确定");
@@ -99,7 +105,7 @@ public class PreviewActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 vIndex.setText((position + 1) + "/" + mMedias.size());
-                if (selectedList.contains(mMedias.get(position).getId())) {
+                if (!removedList.contains(mMedias.get(position).getId())) {
                     vTvSelect.setSelected(true);
                 } else {
                     vTvSelect.setSelected(false);
@@ -113,7 +119,7 @@ public class PreviewActivity extends AppCompatActivity {
 //        List<Media> previewMedias = new ArrayList<>();
 //        previewMedias.addAll(medias);
 
-        mPreviewAdapter = new ImagePreviewAdapter(this, medias, selectedList);
+        mPreviewAdapter = new ImagePreviewAdapter(this, medias);
         mPreviewAdapter.setCallback(new ImagePreviewAdapter.Callback() {
             @Override
             public void imgClick(int position) {
@@ -126,25 +132,25 @@ public class PreviewActivity extends AppCompatActivity {
 
     @OnClick(R.id.tv_select)
     public void selectImg(View view) {
-        if (selectedList.size() == maxSize) {
+        if (mPreviewAdapter.getSelectedMediasId().size() == maxSize) {
             Toast.makeText(this, "至多可以选择" + maxSize + "张图片", Toast.LENGTH_SHORT).show();
             return;
         }
         int currentPosition = vViewPager.getCurrentItem();
-        if (selectedList.contains(mMedias.get(currentPosition).getId())) {
+        if (!removedList.contains((Long) mMedias.get(currentPosition).getId())) {
             vTvSelect.setSelected(false);
-            selectedList.remove(mMedias.get(currentPosition).getId());
+            removedList.add((Long) mMedias.get(currentPosition).getId());
         } else {
             vTvSelect.setSelected(true);
-            selectedList.add(currentPosition, mMedias.get(currentPosition).getId());
+            removedList.remove((Long) mMedias.get(currentPosition).getId());
         }
 
-        mPreviewAdapter.setSelectedMediasId(selectedList);
+        mPreviewAdapter.setRemovedMediasId(removedList);
 
-        if (selectedList.size() == 0) {
+        if (mPreviewAdapter.getSelectedMediasId().size() == 0) {
             vBtnConfirm.setText("确定");
         } else {
-            vBtnConfirm.setText("确定(" + selectedList.size() + "/" + maxSize + ")");
+            vBtnConfirm.setText("确定(" + mPreviewAdapter.getSelectedMediasId().size() + "/" + maxSize + ")");
         }
     }
 
@@ -156,7 +162,9 @@ public class PreviewActivity extends AppCompatActivity {
     @OnClick(R.id.btn_confirm)
     public void confirm(View view) {
         Intent intent = new Intent();
-        intent.putExtra(SELECTED_RESULT_KEY, selectedList);
+        ArrayList<Long> selectedIds = new ArrayList<>();
+        selectedIds.addAll(mPreviewAdapter.getSelectedMediasId());
+        intent.putExtra(SELECTED_RESULT_KEY, selectedIds);
         setResult(RESULT_OK, intent);
         finish();
     }

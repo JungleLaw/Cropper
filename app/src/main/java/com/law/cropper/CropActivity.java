@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.law.cropper.crop.AspectRatio;
-import com.law.cropper.crop.CropIwaView;
+import com.law.cropper.crop.CropImageView;
 import com.law.cropper.photoloader.utils.Logger;
 
 import java.io.File;
@@ -23,7 +21,7 @@ import butterknife.OnClick;
  * Created by Jungle on 2017/7/14.
  */
 
-public class CropActivity extends AppCompatActivity {
+public class CropActivity extends AppCompatActivity implements CropImageView.OnSetImageUriCompleteListener, CropImageView.OnCropImageCompleteListener {
     private static final String PATH_KEY = "path";
     private static final String RATIO_WIDTH_KEY = "width_ratio";
     private static final String RATIO_HEIGHT_KEY = "height_ratio";
@@ -36,7 +34,7 @@ public class CropActivity extends AppCompatActivity {
 
 
     @BindView(R.id.crop_view)
-    CropIwaView vCropIwaView;
+    CropImageView vCropView;
 
     private int widthRatio = -1;
     private int heightRatio = -1;
@@ -45,6 +43,10 @@ public class CropActivity extends AppCompatActivity {
 
     private String path;
     private int mode = -1;
+    /**
+     * the options that were set for the crop image
+     */
+    private CropImageViewOptions mCropImageViewOptions = new CropImageViewOptions();
 
     public static void navigetToCropActivity(Activity activity, String path, int requestCode) {
         Intent intent = new Intent(activity, CropActivity.class);
@@ -76,6 +78,20 @@ public class CropActivity extends AppCompatActivity {
         init();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        vCropView.setOnSetImageUriCompleteListener(this);
+        vCropView.setOnCropImageCompleteListener(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        vCropView.setOnSetImageUriCompleteListener(null);
+        vCropView.setOnCropImageCompleteListener(null);
+    }
+
     private void init() {
         if (getIntent().hasExtra(RATIO_WIDTH_KEY) && getIntent().hasExtra(RATIO_HEIGHT_KEY)) {
             widthRatio = getIntent().getIntExtra(RATIO_WIDTH_KEY, 0);
@@ -99,25 +115,22 @@ public class CropActivity extends AppCompatActivity {
 
         path = getIntent().getStringExtra(PATH_KEY);
         Uri uri = Uri.fromFile(new File(path));
-
-
-        vCropIwaView.configureOverlay().setOverlayColor(ContextCompat.getColor(this, R.color.cropiwa_default_overlay_color));
-        vCropIwaView.configureImage().setImageScaleEnabled(true).apply();
-        vCropIwaView.configureImage().setScale(0.02f).apply();
-        vCropIwaView.setImageUri(uri);
-
+        int divisor;
         switch (mode) {
             case MODE_RATIO:
-                vCropIwaView.configureOverlay().setAspectRatio(new AspectRatio(widthRatio, heightRatio)).apply();
+//                vCropView.configureOverlay().setAspectRatio(new AspectRatio(widthRatio, heightRatio)).apply();
+                divisor = getMaxCommonDivisor(widthRatio, heightRatio);
+                vCropView.setAspectRatio(widthRatio / divisor, heightRatio / divisor);
                 break;
             case MODE_SIZE:
-                int divisor = getMaxCommonDivisor(outWidth, outHeight);
-                vCropIwaView.configureOverlay().setAspectRatio(new AspectRatio(outWidth / divisor, outHeight / divisor)).apply();
+                divisor = getMaxCommonDivisor(outWidth, outHeight);
+                vCropView.setAspectRatio(outWidth / divisor, outHeight / divisor);
                 break;
             case MODE_DYNAMIC:
-                vCropIwaView.configureOverlay().setDynamicCrop(true).setAspectRatio(AspectRatio.IMG_SRC).apply();
+//                vCropView.configureOverlay().setDynamicCrop(true).setAspectRatio(AspectRatio.IMG_SRC).apply();
                 break;
         }
+        vCropView.setImageUriAsync(uri);
     }
 
     @OnClick(R.id.save)
@@ -152,6 +165,16 @@ public class CropActivity extends AppCompatActivity {
 
         path = null;
         mode = -1;
-        vCropIwaView = null;
+        vCropView = null;
+    }
+
+    @Override
+    public void onSetImageUriComplete(CropImageView view, Uri uri, Exception error) {
+
+    }
+
+    @Override
+    public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
+
     }
 }

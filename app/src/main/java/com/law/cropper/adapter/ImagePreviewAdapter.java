@@ -11,6 +11,7 @@ import com.imageloader.ImageDisplayUtils;
 import com.law.cropper.R;
 import com.law.cropper.photoloader.entity.Media;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -23,15 +24,15 @@ import butterknife.ButterKnife;
 public class ImagePreviewAdapter extends RecyclerView.Adapter<ImagePreviewAdapter.ViewHolder> {
     private Context context;
     private List<Media> medias;
-    private List<Long> selectedMediasId;
+    private List<Long> removedMediasId;
     private int index = 0;
 
     private Callback callback;
 
-    public ImagePreviewAdapter(Context context, List<Media> medias, List<Long> selectedMediasId) {
+    public ImagePreviewAdapter(Context context, List<Media> medias) {
         this.context = context;
         this.medias = medias;
-        this.selectedMediasId = selectedMediasId;
+        this.removedMediasId = new ArrayList<>();
     }
 
     @Override
@@ -44,10 +45,10 @@ public class ImagePreviewAdapter extends RecyclerView.Adapter<ImagePreviewAdapte
     public void onBindViewHolder(ViewHolder holder, final int position) {
         Media media = medias.get(position);
         ImageDisplayUtils.display(context, media.getPath(), holder.vIvImg);
-        if (selectedMediasId.contains(media.getId())) {
-            holder.vMask.setVisibility(View.GONE);
-        } else {
+        if (removedMediasId.contains(media.getId())) {
             holder.vMask.setVisibility(View.VISIBLE);
+        } else {
+            holder.vMask.setVisibility(View.GONE);
         }
 
         if (index == position) {
@@ -84,8 +85,18 @@ public class ImagePreviewAdapter extends RecyclerView.Adapter<ImagePreviewAdapte
         }
     }
 
-    public void setSelectedMediasId(List<Long> selectedMediasId) {
-        this.selectedMediasId = selectedMediasId;
+    public List<Long> getSelectedMediasId() {
+        List<Long> selectedMediasId = new ArrayList<>();
+        for (Media media : medias) {
+            if (!removedMediasId.contains(media.getId())) {
+                selectedMediasId.add(media.getId());
+            }
+        }
+        return selectedMediasId;
+    }
+
+    public void setRemovedMediasId(List<Long> removedMediasId) {
+        this.removedMediasId = removedMediasId;
         notifyDataSetChanged();
     }
 
