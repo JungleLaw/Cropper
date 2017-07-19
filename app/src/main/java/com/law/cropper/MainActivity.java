@@ -2,6 +2,7 @@ package com.law.cropper;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -179,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 cropSrc = data.getStringExtra(Constants.CROP_IMG_RESULT);
                 ImageDisplayUtils.display(MainActivity.this, cropSrc, vImgDisplay);
                 Logger.i("TAKE_CROP_REQUEST_CODE : " + cropSrc);
+                scanFile(cropSrc);
                 break;
         }
     }
@@ -215,4 +217,13 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    public void scanFile(String filePath) {
+        Uri fileUri = Uri.fromFile(new File(filePath));
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        intent.setData(fileUri);
+        sendBroadcast(intent);
+    }
+
 }

@@ -2,12 +2,12 @@ package com.base;
 
 import android.app.Application;
 
+import com.imageloader.impl.GlideImageLoaderImpl;
 import com.law.cropper.photoloader.Configuration;
 import com.squareup.leakcanary.LeakCanary;
 import com.zhy.autolayout.config.AutoLayoutConifg;
 
 import com.imageloader.ImageLoader;
-import com.imageloader.impl.GlideImageLoaderImpl;
 
 /**
  * Created by Jungle on 2017/7/14.

@@ -11,7 +11,6 @@ import java.io.File;
  * 图片加载参数
  * Created by Jungle on 2017/6/6.
  */
-
 public class Params {
     /**
      * 上下文

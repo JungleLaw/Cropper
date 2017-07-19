@@ -197,6 +197,7 @@ public class CropActivity extends AppCompatActivity implements CropImageView.OnC
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(this, "裁剪失败", Toast.LENGTH_SHORT).show();
+                    return;
                 }
             }
             setResult(RESULT_OK, intent);

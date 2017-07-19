@@ -4,9 +4,9 @@ import android.content.Context;
 import android.view.View;
 
 
-import java.io.File;
-
 import com.imageloader.config.SingleConfig;
+
+import java.io.File;
 
 /**
  * 图片加载及其他功能接口

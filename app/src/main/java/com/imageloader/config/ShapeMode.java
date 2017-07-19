@@ -19,7 +19,4 @@ public interface ShapeMode {
      * 椭圆/圆
      */
     int OVAL = 2;
-
-
-
 }

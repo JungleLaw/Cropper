@@ -17,10 +17,6 @@ package com.imageloader.config;
  */
 
 public interface ScaleMode {
-
-
-
-
     /**
      * 居中并填充整个view,太小就扩张,太大就裁剪,图片只缩放,不会拉伸.
      */

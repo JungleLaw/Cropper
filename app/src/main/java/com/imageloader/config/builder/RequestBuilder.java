@@ -4,9 +4,9 @@ import android.net.Uri;
 import android.support.annotation.DrawableRes;
 
 
-import java.io.File;
-
 import com.imageloader.config.Params;
+
+import java.io.File;
 
 /**
  * 设置加载地址或文件或其他

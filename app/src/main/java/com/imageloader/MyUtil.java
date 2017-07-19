@@ -8,6 +8,10 @@ import android.graphics.Paint;
 import android.text.TextUtils;
 
 
+import com.imageloader.config.GlobalConfig;
+import com.imageloader.config.Params;
+import com.imageloader.config.SingleConfig;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,9 +31,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.imageloader.config.GlobalConfig;
-import com.imageloader.config.Params;
-import com.imageloader.config.SingleConfig;
+
 import okhttp3.OkHttpClient;
 
 
@@ -38,64 +40,38 @@ import okhttp3.OkHttpClient;
  */
 public class MyUtil {
 
-    public static Params.BitmapListener getBitmapListenerProxy(final Params.BitmapListener listener){
+    public static Params.BitmapListener getBitmapListenerProxy(final Params.BitmapListener listener) {
         return (Params.BitmapListener) Proxy.newProxyInstance(SingleConfig.class.getClassLoader(),
                 listener.getClass().getInterfaces(), new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
-
-                runOnUIThread(new Runnable() {
                     @Override
-                    public void run() {
-                        try {
-                            Object object=  method.invoke(listener,args);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
+                    public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
+
+                        runOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Object object = method.invoke(listener, args);
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                } catch (InvocationTargetException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+
+                        return null;
                     }
                 });
-
-
-
-                return null;
-            }
-        });
-
     }
 
-
-    public static void runOnUIThread(Runnable runnable){
+    public static void runOnUIThread(Runnable runnable) {
         GlobalConfig.getMainHandler().post(runnable);
     }
 
-//    public static boolean shouldSetPlaceHolder(SingleConfig config){
-//        if(config.isReuseable()){
-//            return true;
-//        }
-//        if(config.getPlaceHolderResId()<=0 ) {
-//            return false;
-//        }
-//
-//        if(config.getResId()>0 || !TextUtils.isEmpty(config.getFilePath()) || GlobalConfig.getLoader().isCached(config.getUrl())){
-//            return false;
-//        }else {//只有在图片源为网络图片,并且图片没有缓存到本地时,才给显示placeholder
-//            return true;
-//        }
-//    }
-
-
-//    public static int dip2px(float dipValue){
-//        final float scale = GlobalConfig.context.getResources().getDisplayMetrics().density;
-//        return (int)(dipValue * scale + 0.5f);
-//    }
-
-
-
-
     /**
      * 等比压缩（宽高等比缩放）
+     *
      * @param bitmap
      * @param needRecycle
      * @param targetWidth
@@ -120,8 +96,7 @@ public class MyUtil {
     }
 
 
-
-    public static String getRealType(File file){
+    public static String getRealType(File file) {
         FileInputStream is = null;
         try {
             is = new FileInputStream(file);
@@ -132,32 +107,29 @@ public class MyUtil {
                 e.printStackTrace();
                 return "";
             }
-            String type =  bytesToHexString(b).toUpperCase();
-            if(type.contains("FFD8FF")){
+            String type = bytesToHexString(b).toUpperCase();
+            if (type.contains("FFD8FF")) {
                 return "jpg";
-            }else if(type.contains("89504E47")){
+            } else if (type.contains("89504E47")) {
                 return "png";
-            }else if(type.contains("47494638")){
+            } else if (type.contains("47494638")) {
                 return "gif";
-            }else if(type.contains("49492A00")){
+            } else if (type.contains("49492A00")) {
                 return "tif";
-            }else if(type.contains("424D")){
+            } else if (type.contains("424D")) {
                 return "bmp";
             }
             return type;
         } catch (Exception e) {
             e.printStackTrace();
             return "";
-        }finally {
+        } finally {
             try {
                 is.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
-
-
     }
 
     public static String bytesToHexString(byte[] src) {
@@ -176,80 +148,17 @@ public class MyUtil {
         return stringBuilder.toString();
     }
 
-
-//    /**
-//     * 类型	SCHEME	示例
-//     远程图片	http://, https://	HttpURLConnection 或者参考 使用其他网络加载方案
-//     本地文件	file://	FileInputStream
-//     Content provider	content://	ContentResolver
-//     asset目录下的资源	asset://	AssetManager
-//     res目录下的资源	res://	Resources.openRawResource
-//     Uri中指定图片数据	data:mime/type;base64,	数据类型必须符合 rfc2397规定 (仅支持 UTF-8)
-//     * @param config
-//     * @return
-//     */
-//    public static Uri buildUriByType(SingleConfig config) {
-//
-//        Log.e("builduri:","url: "+config.getUrl()+" ---filepath:"+config.getFilePath()+ "--content:"+config.getContentProvider());
-//
-//        if(!TextUtils.isEmpty(config.getUrl())){
-//            String url = MyUtil.appendUrl(config.getUrl());
-//            return Uri.parse(url);
-//        }
-//
-//        if(config.getResId() > 0){
-//            return Uri.parse("res://com.imageloader/" + config.getResId());
-//        }
-//
-//        if(!TextUtils.isEmpty(config.getFilePath())){
-//
-//            File file = new File(config.getFilePath());
-//            if(file.exists()){
-//                return Uri.fromFile(file);
-//            }
-//        }
-//
-//        if(!TextUtils.isEmpty(config.getContentProvider())){
-//            String content = config.getContentProvider();
-//            if(!content.startsWith("content")){
-//                content = "content://"+content;
-//            }
-//            return Uri.parse(content);
-//        }
-//
-//
-//
-//
-//        return null;
-//    }
-
-
-//    public static String appendUrl(String url) {
-//        String newUrl = url;
-//        if(TextUtils.isEmpty(newUrl)){
-//            return newUrl;
-//        }
-//        boolean hasHost = url.contains("http:" ) || url.contains("https:" )  ;
-//        if (!hasHost){
-//           if(!TextUtils.isEmpty(GlobalConfig.baseUrl)){
-//               newUrl = GlobalConfig.baseUrl+url;
-//           }
-//        }
-//
-//        return newUrl;
-//    }
-
-
-    public static OkHttpClient getClient(boolean ignoreCertificateVerify){
-        if(ignoreCertificateVerify){
+    public static OkHttpClient getClient(boolean ignoreCertificateVerify) {
+        if (ignoreCertificateVerify) {
             return getAllPassClient();
-        }else {
+        } else {
             return getNormalClient();
         }
     }
 
     /**
      * 不校验证书
+     *
      * @return
      */
     private static OkHttpClient getAllPassClient() {
@@ -283,7 +192,6 @@ public class MyUtil {
             e.printStackTrace();
         }
 
-
         HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
             @Override
             public boolean verify(String hostname, SSLSession session) {
@@ -302,7 +210,7 @@ public class MyUtil {
         return client;
     }
 
-    private static OkHttpClient getNormalClient(){
+    private static OkHttpClient getNormalClient() {
         OkHttpClient client = new OkHttpClient.Builder()
                 //.sslSocketFactory(sslContext.getSocketFactory())
                 //.hostnameVerifier(DO_NOT_VERIFY)
@@ -312,7 +220,6 @@ public class MyUtil {
         return client;
     }
 
-
     /**
      * 获取指定文件夹内所有文件大小的和
      *
@@ -320,7 +227,7 @@ public class MyUtil {
      * @return size
      * @throws Exception
      */
-    public static long getFolderSize(File file)  {
+    public static long getFolderSize(File file) {
         long size = 0;
         try {
             File[] fileList = file.listFiles();
@@ -340,7 +247,7 @@ public class MyUtil {
     /**
      * 删除指定目录下的文件，这里用于缓存的删除
      *
-     * @param filePath filePath
+     * @param filePath       filePath
      * @param deleteThisPath deleteThisPath
      */
     public static void deleteFolderFile(String filePath, boolean deleteThisPath) {
@@ -370,19 +277,13 @@ public class MyUtil {
 
     public static long getCacheSize() {
         File dir = new File(ImageLoader.context.getCacheDir(), GlobalConfig.cacheFolderName);
-        if(dir!=null && dir.exists()){
+        if (dir != null && dir.exists()) {
             return MyUtil.getFolderSize(dir);
-        }else {
+        } else {
             return 0;
         }
 
     }
-
-
-
-//    public static Bitmap rectRound(Bitmap source,int radius, int margin){
-//        return new RoundedCornersTransformation2(radius,margin).transform(source,source.getWidth(),source.getHeight());
-//    }
 
     public static Bitmap cropCirle(Bitmap source, boolean recycleOriginal) {
         //BitmapPool mBitmapPool = Glide.get(BigLoader.context).getBitmapPool();
@@ -395,7 +296,6 @@ public class MyUtil {
         //source.setHasAlpha(true);
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         //bitmap.setHasAlpha(true);
-
 
 
         Canvas canvas = new Canvas(bitmap);
@@ -418,25 +318,9 @@ public class MyUtil {
 
         float r = size / 2f;
         canvas.drawCircle(r, r, r, paint);
-        if(recycleOriginal){
+        if (recycleOriginal) {
             source.recycle();
         }
-
         return bitmap;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

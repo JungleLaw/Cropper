@@ -201,5 +201,4 @@ public class ImageDisplayUtils {
     public static void displayTask(Context context, int resId, Params.BitmapListener listener, int placeholderResId, int errorResId) {
         ImageLoader.with(context).load(resId).asBitmap().placeHolder(placeholderResId).error(errorResId).setBitmapListener(listener);
     }
-
 }

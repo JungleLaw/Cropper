@@ -9,7 +9,6 @@ import com.imageloader.config.builder.ConfigBuilder;
 import com.imageloader.config.builder.RequestBuilder;
 import com.imageloader.i.ILoader;
 
-
 /**
  * Created by Jungle on 2017/6/6.
  */
@@ -58,6 +57,4 @@ public class ImageLoader {
     public static void clearAllMemoryCaches() {
         GlobalConfig.getLoader().onLowMemory();
     }
-
-
 }

@@ -6,10 +6,9 @@ import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Registry;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.module.GlideModule;
+import com.imageloader.config.GlobalConfig;
 
 import java.io.File;
-
-import com.imageloader.config.GlobalConfig;
 
 /**
  * Created by Jungle on 2017/6/6.

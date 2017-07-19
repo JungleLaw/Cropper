@@ -15,9 +15,6 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-
-import java.io.File;
-
 import com.imageloader.ImageLoader;
 import com.imageloader.MyUtil;
 import com.imageloader.config.GlobalConfig;
@@ -25,6 +22,8 @@ import com.imageloader.config.ScaleMode;
 import com.imageloader.config.SingleConfig;
 import com.imageloader.i.FileGetter;
 import com.imageloader.i.ILoader;
+
+import java.io.File;
 
 //import com.bumptech.glide.DrawableTypeRequest;
 //import com.bumptech.glide.request.animation.GlideAnimation;
